@@ -35,12 +35,12 @@ import models.ComicStatus
 import models.ComicUpdates
 import models.Mangas
 import models.WeeklyPacks
+import org.http4k.client.JavaHttpClient
 import org.http4k.client.withAsyncApi
 import org.http4k.core.Response
 import utils.Logger
 import utils.doOnBackground
 import utils.get
-import utils.getClient
 import utils.parse
 import java.io.IOException
 
@@ -66,7 +66,7 @@ import java.io.IOException
 @OptIn(ExperimentalSerializationApi::class)
 class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
   private val comicUpdates = ArrayList<ComicUpdates>(maxInitialCapacity) // initially they can never be more than 6
-  private val client = getClient()
+  private val client by lazy { JavaHttpClient() }
 
   // some comics don't have image links, so we create them manually
   private fun String.toImageUrl(): String? {
@@ -92,7 +92,7 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
     val searchResults = arrayListOf<Mangas>()
     return try {
       doOnBackground {
-        getClient().withAsyncApi()(searchAbsUrl.get()) { res: Response ->
+        client.withAsyncApi()(searchAbsUrl.get()) { res: Response ->
           val obj = Json.decodeFromStream<SearchResults>(res.body.stream)
           val result = obj.suggestions
             .map { suggestions ->
@@ -165,7 +165,6 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
       weeklyUploadedComicsLinks(client(getBaseUrl().get()).bodyString()).forEach { link ->
         val weeklyPackComics = arrayListOf<Mangas>()
         val request = link.get()
-        val client = getClient()
         client(request).parse { doc ->
           val weeklyUploadComicLinks = doc.select(weeklyPackComicsSelector)
             .map { it.attr(hrefTag) }

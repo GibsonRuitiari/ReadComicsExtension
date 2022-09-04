@@ -14,8 +14,6 @@ package utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.http4k.client.JavaHttpClient
-import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -33,5 +31,5 @@ suspend inline fun Response.parse(crossinline action: (document: Document) -> Un
 
 suspend inline fun String.parse(crossinline action: (document: Document) -> Unit) =
   doOnBackground { Jsoup.parse(this).run { action(this) } }
-fun getClient(): HttpHandler = JavaHttpClient()
+// fun getClient(): HttpHandler = JavaHttpClient()
 fun String.get(): Request = Request(Method.GET, this)
