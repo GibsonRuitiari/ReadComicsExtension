@@ -12,7 +12,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.10"
 }
 
-//apply(plugin = "com.vanniktech.maven.publish")
+// apply(plugin = "com.vanniktech.maven.publish")
 
 repositories {
     mavenCentral()
@@ -74,4 +74,3 @@ tasks.withType<Detekt>().configureEach {
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
-
