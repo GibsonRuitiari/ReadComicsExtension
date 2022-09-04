@@ -35,7 +35,7 @@ import models.ComicStatus
 import models.ComicUpdates
 import models.Mangas
 import models.WeeklyPacks
-import org.http4k.client.JavaHttpClient
+import org.http4k.client.OkHttp
 import org.http4k.client.withAsyncApi
 import org.http4k.core.Response
 import utils.Logger
@@ -66,7 +66,7 @@ import java.io.IOException
 @OptIn(ExperimentalSerializationApi::class)
 class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
   private val comicUpdates = ArrayList<ComicUpdates>(maxInitialCapacity) // initially they can never be more than 6
-  private val client by lazy { JavaHttpClient() }
+  private val client = OkHttp()
 
   // some comics don't have image links, so we create them manually
   private fun String.toImageUrl(): String? {

@@ -29,6 +29,7 @@ publishing {
 dependencies {
     implementation("org.jsoup:jsoup:1.15.3")
     implementation("org.http4k:http4k-core:4.30.3.0")
+    implementation ("org.http4k:http4k-client-okhttp:4.30.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
@@ -56,9 +57,8 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 }
 
 detekt {
+    config = files("config/detekt/detekt.yml")
     buildUponDefaultConfig = true
-    allRules = false
-    parallel = true
 }
 
 tasks.withType<Detekt>().configureEach {
@@ -75,9 +75,4 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = "1.8"
-}
-tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = "1.8"
-}
+
