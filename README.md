@@ -19,12 +19,21 @@ readComicsExtension.getHotComicUpdates().fold({comicUpdates->
 `ReadComicsExtension` is extensible. See [ReadComicsDelegate](https://github.com/GibsonRuitiari/ReadComicsExtension/blob/master/src/main/kotlin/api/ReadComicsDelegate.kt) as an example
 for pulling comics book data from the website. You are free to provide your own implementation.
 
+```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```  
+
 ```groovy
-implementation "org.readcomicsonline:readcomics:0.1"
+implementation "com.github.GibsonRuitiari:ReadComicsExtension:1.0.2"
 ```
 
 ```gradle.kts 
-implementation("org.readcomicsonline:readcomics:0.1")
+implementation("com.github.GibsonRuitiari:ReadComicsExtension:1.0.2")
 ```
 
 ## License
