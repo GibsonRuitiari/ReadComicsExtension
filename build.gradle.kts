@@ -3,19 +3,20 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("java-library")
     kotlin("jvm") version "1.7.10"
-    id("com.diffplug.gradle.spotless") version("3.27.0")
-    id("maven-publish")
-    id("io.gitlab.arturbosch.detekt").version("1.21.0")
+    id("com.vanniktech.maven.publish") version "0.19.0"
+    id("com.diffplug.gradle.spotless") version "3.27.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     id("org.jetbrains.dokka") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
 }
 
-//group = "org.readcomicsonline"
-//version = "0.1"
+//apply(plugin = "com.vanniktech.maven.publish")
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
