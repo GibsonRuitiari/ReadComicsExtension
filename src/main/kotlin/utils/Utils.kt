@@ -20,7 +20,7 @@ import org.http4k.core.Response
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-suspend inline fun doOnBackground(crossinline work: () -> Unit) =
+suspend inline fun doOnBackground(crossinline work: suspend () -> Unit) =
   withContext(Dispatchers.IO) { work() }
 suspend inline fun Response.parse(crossinline action: (document: Document) -> Unit) =
   doOnBackground {

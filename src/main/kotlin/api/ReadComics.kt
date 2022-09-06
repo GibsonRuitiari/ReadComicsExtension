@@ -78,4 +78,6 @@ interface ReadComics {
    * @param chapterUrl url of chapter
    */
   suspend fun getChapterPages(chapterUrl: String): Result<List<ComicPages>>
+  suspend fun getOngoingComics(pageNumber: Int): Result<List<Mangas>>
+  suspend fun getCompletedComics(pageNumber: Int): Result<List<Mangas>>
 }

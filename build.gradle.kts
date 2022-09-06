@@ -1,5 +1,4 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -29,7 +28,7 @@ publishing {
 dependencies {
     implementation("org.jsoup:jsoup:1.15.3")
     implementation("org.http4k:http4k-core:4.30.3.0")
-    implementation ("org.http4k:http4k-client-okhttp:4.30.3.0")
+    implementation("org.http4k:http4k-client-okhttp:4.30.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
@@ -74,5 +73,3 @@ tasks.withType<Detekt>().configureEach {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
-
-

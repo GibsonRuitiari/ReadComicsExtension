@@ -23,6 +23,8 @@ package api/*
  * specific language governing permissions and limitations under the License.
  */
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -110,6 +112,54 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
       Result.success(searchResults)
     } catch (ex: IOException) {
       logger.log("[Parsing-Search-Comic-Error]", ex)
+      Result.failure(ex)
+    }
+  }
+  internal suspend fun parseCompletedComics(bodyString: String): Result<List<Mangas>> {
+    val completedComicsArrayList = arrayListOf<Mangas>()
+    val completedComicsUrls = arrayListOf<String>()
+    return try {
+      bodyString.parse { document ->
+        document.select(completedComicsSelector).mapTo(completedComicsUrls) {
+          val query = it.attr(hrefTag)
+            .split("comic")
+            .last()
+            .replace("/", "")
+            .replace("-", " ")
+            .replace("\\s+".toRegex(), "+")
+          "$searchUrl=$query"
+        }
+      }
+      doOnBackground {
+        val completedComics = completedComicsUrls
+          .mapNotNull { parseSearchComic(it).getOrNull() }
+          .filter { it.isNotEmpty() }
+          .flatten()
+        completedComicsArrayList.addAll(completedComics)
+      }
+      Result.success(completedComicsArrayList)
+    } catch (ex: IOException) {
+      Result.failure(ex)
+    }
+  }
+  internal suspend fun parseOngoingComics(bodyString: String): Result<List<Mangas>> {
+    val ongoingComicsArrayList = arrayListOf<Mangas>()
+    val ongoingComicsUrls = arrayListOf<String>()
+    return try {
+      bodyString.parse { document ->
+        val titles = document.select(ongoingComicsSelector).map { it.text() }
+        titles.mapNotNullTo(ongoingComicsUrls) {
+          val query = it.replace("\\s+".toRegex(), "+")
+          "$searchUrl=$query"
+        }
+      }
+      withContext(Dispatchers.IO) {
+        ongoingComicsUrls.mapNotNull { parseSearchComic(it).getOrNull() }
+          .filter { it.isNotEmpty() }
+          .forEach { ongoingComicsArrayList.addAll(it) }
+      }
+      Result.success(ongoingComicsArrayList)
+    } catch (ex: IOException) {
       Result.failure(ex)
     }
   }
@@ -345,6 +395,10 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
     }
   }
 
+  override suspend fun getOngoingComics(pageNumber: Int): Result<List<Mangas>> {
+    val ongoingComicsUrl = "$ongoingUrl=$pageNumber"
+    return parseOngoingComics(client(ongoingComicsUrl.get()).bodyString())
+  }
   override suspend fun searchForComic(searchTerm: String): Result<List<Mangas>> {
     if (searchTerm.isEmpty() || searchTerm.isBlank()) {
       return Result.success(emptyList())
@@ -361,6 +415,11 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
     return parseLatestComicUpdates(bodyString)
   }
 
+  override suspend fun getCompletedComics(pageNumber: Int): Result<List<Mangas>> {
+    val request = "$completedComicsUrl=$pageNumber".get()
+    val bodyString = client(request).bodyString()
+    return parseCompletedComics(bodyString)
+  }
   override suspend fun getPopularComics(): Result<List<Mangas>> {
     val bodyString = client(getBaseUrl().get()).bodyString()
     return parsePopularComics(bodyString)
@@ -446,7 +505,10 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
     internal const val baseUrl = "https://readcomicsonline.ru/"
     internal const val httpsPrefix = "https"
     internal const val comicPrefix = "/comic/"
+    // ongoing comics url
+    internal const val ongoingUrl = "https://viewcomics.me/ongoing-comics?page"
     internal const val searchUrl = "https://readcomicsonline.ru/search?query"
+    internal const val completedComicsUrl = "https://viewcomics.me/advanced-search?status=CMP&page"
     internal const val latestComicsUpdatesLink = "https://readcomicsonline.ru/latest-release"
     internal const val weeklyComicUploadPrefix = "weekly-comic-upload-"
     // common css tags
@@ -487,7 +549,10 @@ class ReadComicsDelegate constructor(private val logger: Logger) : ReadComics {
     internal const val comicDetailsChaptersSelector = "ul.chapters a[href]"
     // css selectors for popular comics
     internal const val popularComicsSelector = "li.list-group-item h5.media-heading a[href]"
-
+    // css selector for completed comics
+    internal const val completedComicsSelector = "div.detailed-list div.dl-box a[href].dlb-image"
+    // css selector for ongoing comics
+    internal const val ongoingComicsSelector = "div.ig-box a.igb-name"
     internal const val maxPageNumber = 10
     internal const val maxInitialCapacity = 6
   }
