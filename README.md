@@ -33,14 +33,14 @@ allprojects {
 groovy
 
 ```
-implementation "com.github.GibsonRuitiari:ReadComicsExtension:1.0.2"
+implementation "com.github.GibsonRuitiari:ReadComicsExtension:1.0.3"
 
 ```
 
 gradle.kts 
 
 ```
-implementation("com.github.GibsonRuitiari:ReadComicsExtension:1.0.2")
+implementation("com.github.GibsonRuitiari:ReadComicsExtension:1.0.3")
 
 ```
 
